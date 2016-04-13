@@ -61,8 +61,8 @@ toStr 'b' = "banana"
 toStr 'c' = "candy"
 --当输入如'd'时就会崩溃
 
---要写成这样：
 
+--要写成这样：
 toStr2 :: Char -> [Char]
 toStr2 'a' = "apple"
 toStr2 'b' = "banana"
