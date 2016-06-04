@@ -31,13 +31,16 @@
         [(cond? exp) (eval (cond-to-if exp) env)]
   		
         [(application? exp)
-  			(apply (eval (operator exp) env)
+  			(my-apply (eval (operator exp) env)
   				   (list-of-values (operands exp) env))]
   		
         [else (error "Unknow expression type -- EVAL" exp)]))
 
-  
-(define (apply proc args)
+
+
+; apply is a peimitive function in scheme, 
+; so we use "my-apply" here in order not to override it.
+(define (my-apply proc args)
   (cond 
         [(primitive-proc? proc)
   			(apply-primitive-proc proc args)]
@@ -46,14 +49,15 @@
   						   (extend-env  (proc-params proc)
   						   				args
   						   				(proc-env proc)))]
-  		[else (error "Unknow procedual type -- APPLY" proc)]))
+  		[else (error "Unknow procedual type -- MY-APPLY" proc)]))
 
 ; helper
 
 (define (primitive-proc? p)
     (tagged-list? p 'primitive))
 
-
+(define (apply-primitive-proc proc args)
+    (apply (primitive-implementation proc) args))
 
 (define (compound-proc? proc)
     (tagged-list? proc 'procedual))
@@ -315,7 +319,7 @@
 
 
 ; dispatch
-; see "apply"
+; see "my-apply"
 
 
 ; environment
@@ -479,5 +483,15 @@
 (define (primitive-proc-objects)
     (map (lambda (p) (list 'primitive (cadr p)))    ;data structure for primitive proc
          primitive-proc))
+
+
+
+
+;REPL
+;---------------------------------------------------------------
+
+
+
+
 
 
