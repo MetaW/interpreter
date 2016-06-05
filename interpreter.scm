@@ -1,4 +1,3 @@
-#lang racket
 
 ; this is a stronger interpreter 
 ; according to Chapter 4.1 of SICP
@@ -8,33 +7,33 @@
 ;eval apply loop
 (define (eval exp env)
   (cond 
-        [(self-evaluating? exp) exp]
+        ((self-evaluating? exp) exp)
 
-  		[(variable? exp) (lookup-var-value exp evn)]
+  		((variable? exp) (lookup-var-value exp env))
   		
-        [(quoted? exp) (text-of-quotation exp)]
+        ((quoted? exp) (text-of-quotation exp))
   		
-        [(assignment? exp) (eval-assignment exp env)]
+        ((assignment? exp) (eval-assignment exp env))
   		
-        [(definition? exp) (eval-definition exp env)]
+        ((definition? exp) (eval-definition exp env))
   		
-        [(if? exp) (eval-if exp evn)]
+        ((if? exp) (eval-if exp env))
   		
-        [(lambda? exp)
+        ((lambda? exp)
   			(make-proc (lambda-params exp)
   					   (lambda-body exp)
-  					    env)]
+  					    env))
   		
-        [(begin? exp) 
-  			(eval-sequence (begin-actions exp) env)]
+        ((begin? exp) 
+  			(eval-sequence (begin-actions exp) env))
   		
-        [(cond? exp) (eval (cond-to-if exp) env)]
+        ((cond? exp) (eval (cond-to-if exp) env))
   		
-        [(application? exp)
+        ((application? exp)
   			(my-apply (eval (operator exp) env)
-  				   (list-of-values (operands exp) env))]
+  				   (list-of-values (operands exp) env)))
   		
-        [else (error "Unknow expression type -- EVAL" exp)]))
+        (else (error "Unknow expression type -- EVAL" exp))))
 
 
 
@@ -42,14 +41,14 @@
 ; so we use "my-apply" here in order not to override it.
 (define (my-apply proc args)
   (cond 
-        [(primitive-proc? proc)
-  			(apply-primitive-proc proc args)]
-  		[(compound-proc? proc)
+        ((primitive-proc? proc)
+  			(apply-primitive-proc proc args))
+  		((compound-proc? proc)
   			(eval-sequence (proc-body proc)
   						   (extend-env  (proc-params proc)
   						   				args
-  						   				(proc-env proc)))]
-  		[else (error "Unknow procedual type -- MY-APPLY" proc)]))
+  						   				(proc-env proc))))
+  		(else (error "Unknow procedual type -- MY-APPLY" proc))))
 
 ; helper
 
@@ -70,9 +69,9 @@
 
 ; recongnize
 (define (self-evaluating? exp)
-    (cond [(number? exp) true]
-          [(string? exp) true]
-          [else false]))
+    (cond ((number? exp) true)
+          ((string? exp) true)
+          (else false)))
 
 ; dispatch
 
@@ -87,8 +86,8 @@
     (symbol? exp))
 
 ;dispatch
-(define (lookup-var-value exp env)
-    ())
+;(define (lookup-var-value exp env)  
+;-- see environment part
 
 
 
@@ -117,7 +116,7 @@
 
 
 ;dispatch
-(define (eval-assignment exp evn)
+(define (eval-assignment exp env)
   (set-variable-avlue! (assignment-variable exp)
                        (eval (assignment-value exp) env)
                        env)
@@ -233,9 +232,9 @@
 ;dispatch
 (define (eval-sequence exps env)
   (cond 
-        [(last-exp? exps) (eval (first-exp exps) env)]
-        [else (eval (first-exp exps) env)
-              (eval-sequence (rest-exps exps) env)]))
+        ((last-exp? exps) (eval (first-exp exps) env))
+        (else (eval (first-exp exps) env)
+              (eval-sequence (rest-exps exps) env))))
 
 ; helper
 
@@ -284,8 +283,8 @@
 (define (expand-clause exp)
     (if (null? exp)
         'false
-        (let ([first (car exp)]
-              [rest (cdr exp)])
+        (let ((first (car exp))
+              (rest (cdr exp)))
              (if (cond-else-clause? first 'else)
                  (if (null? rest)   
                      (sequence-to-exp (cond-actions first))
@@ -298,9 +297,9 @@
     (list 'if predicate consequence alternate))
 
 (define (sequence-to-exp seq)
-    (cond [(null? seq) seq]
-          [(last-exp? seq) (car seq)]
-          [else (make-begin seq)]))
+    (cond ((null? seq) seq)
+          ((last-exp? seq) (car seq))
+          (else (make-begin seq))))
 
 (define (make-begin exp)
     (cons 'begin exp))
@@ -363,43 +362,43 @@
 (define (lookup-var-value var env)
     (define (env-loop env)
         (define (scan vars vals)
-            (cond [(null? vars) 
-                        (env-loop (enclosing-env env))]
-                  [(eq? (car vars) var) 
-                        (car vals)]
-                  [else (scan (cdr vars vals))]))
+            (cond ((null? vars) 
+                        (env-loop (enclosing-env env)))
+                  ((eq? (car vars) var) 
+                        (car vals))
+                  (else (scan (cdr vars) (cdr vals)))))
 
         (if (null? env)
             (error "Unbounded variable" var)
-            (let ([vars (frame-variables (first-frame env))]
-                  [vals (frame-values (first-frame env))])
-                 (scan vars cals))))
+            (let ((vars (frame-variables (first-frame env)))
+                  (vals (frame-values (first-frame env))))
+                 (scan vars vals))))
     (env-loop env))
 
 
 (define (set-variable-avlue! var val env)
     (define (env-loop env)
         (define (scan vars vals)
-            (cond [(null? vars) 
-                        (env-loop (enclosing-env env))]
-                  [(eq? (car vars) var) 
-                        (set-car! vals val)]
-                  [else (scan (cdr vars vals))]))
+            (cond ((null? vars) 
+                        (env-loop (enclosing-env env)))
+                  ((eq? (car vars) var) 
+                        (set-car! vals val))
+                  (else (scan (cdr vars vals)))))
 
         (if (null? env)
             (error "Unbounded variable" var)
-            (let ([vars (frame-variables (first-frame env))]
-                  [vals (frame-values (first-frame env))])
-                 (scan vars cals))))
+            (let ((vars (frame-variables (first-frame env)))
+                  (vals (frame-values (first-frame env))))
+                 (scan vars vals))))
     (env-loop env))
 
 
 (define (define-variable! var val env)
-    (let ([frame (first-frame env)])
+    (let ((frame (first-frame env)))
          (define (scan vars vals)
-            (cond [(null? vars) (add-binding-to-frame var val frame)]
-                  [(eq? var (car vars)) (set-car! vals val)]
-                  [else (scan (cdr vars) (cdr vals))]))
+            (cond ((null? vars) (add-binding-to-frame! var val frame))
+                  ((eq? var (car vars)) (set-car! vals val))
+                  (else (scan (cdr vars) (cdr vals)))))
          (scan (frame-variables frame)
                (frame-values frame))))
 
@@ -412,7 +411,7 @@
 (define (tagged-list? exp tag)
     (if (pair? exp)
         (eq? (car exp) tag)
-        false)
+        false))
 
 
 (define (list-of-values exps env)
@@ -438,7 +437,7 @@
     (cdr exp))
 
 
-(define (proc-parameter p)
+(define (proc-params p)
     (cadr p))
 
 (define (proc-body p)
@@ -458,15 +457,12 @@
 ;---------------------------------------------------------------
 
 (define (setup-env)
-    (let ([initial-env (extend-env (primitive-proc-names)
+    (let ((initial-env (extend-env (primitive-proc-names)
                                    (primitive-proc-objects)
-                                    the-empty-env)])
+                                    the-empty-env)))
          (define-variable! 'true true initial-env)
          (define-variable! 'false false initial-env)
          initial-env))
-
-(define the-global-env (setup-env))
-
 
 ;!!!
 (define primitive-proc
@@ -474,6 +470,8 @@
           (list 'cdr cdr)
           (list 'cons cons)
           (list 'null? null?)
+          (list '+ +)
+          (list '- -)
           ; other primitive proc ...
           ))
 
@@ -485,6 +483,7 @@
          primitive-proc))
 
 
+(define the-global-env (setup-env))
 
 
 ;REPL
@@ -494,15 +493,28 @@
 
 (define output-prompt ";;; M-eval OUT")
 
-(define (drive-loop)
+(define (drive-loop) ;!!!
     (prompt-for-input input-prompt)
-    (let ([in (read)])
-         (let ([out (eval in the-global-env)])
+    (let ((in (read)))
+         (let ((out (eval in the-global-env)))
               (announce-output output-prompt)
               (user-print out)))
     (drive-loop))
 
 
+(define (prompt-for-input str)
+    (newline) (newline) (display str) (newline))
+
+(define (announce-output str)
+    (newline) (display str) (newline))
+
+(define (user-print out)
+    (if (compound-proc? out)
+        (display (list 'compound-proc
+                        (proc-params out)
+                        (proc-body out)
+                        '<procedual-env>))
+        (display out)))
 
 
 
