@@ -490,6 +490,17 @@
 ;REPL
 ;---------------------------------------------------------------
 
+(define input-prompt ";;; M-eval IN")
+
+(define output-prompt ";;; M-eval OUT")
+
+(define (drive-loop)
+    (prompt-for-input input-prompt)
+    (let ([in (read)])
+         (let ([out (eval in the-global-env)])
+              (announce-output output-prompt)
+              (user-print out)))
+    (drive-loop))
 
 
 
