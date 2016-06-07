@@ -1,6 +1,6 @@
 
 ; this is a stronger interpreter 
-; according to Chapter 4.1 of SICP
+; reference: Chapter 4.1 of SICP
 
 
 
@@ -472,6 +472,10 @@
           (list 'null? null?)
           (list '+ +)
           (list '- -)
+          (list '* *)
+          (list '/ /)
+          (list 'display display)
+          
           ; other primitive proc ...
           ))
 
@@ -489,9 +493,9 @@
 ;REPL
 ;---------------------------------------------------------------
 
-(define input-prompt ";;; M-eval IN")
+(define input-prompt ">INPUT:")
 
-(define output-prompt ";;; M-eval OUT")
+(define output-prompt ">OUTPUT:")
 
 (define (drive-loop) ;!!!
     (prompt-for-input input-prompt)
