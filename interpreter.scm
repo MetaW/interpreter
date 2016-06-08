@@ -369,7 +369,7 @@
                   (else (scan (cdr vars) (cdr vals)))))
 
         (if (null? env)
-            (error "Unbounded variable" var)
+            (error "Unbounded variable -- LOOKUP-VAR" var)
             (let ((vars (frame-variables (first-frame env)))
                   (vals (frame-values (first-frame env))))
                  (scan vars vals))))
@@ -386,7 +386,7 @@
                   (else (scan (cdr vars vals)))))
 
         (if (null? env)
-            (error "Unbounded variable" var)
+            (error "Unbounded variable -- SET-VAR" var)
             (let ((vars (frame-variables (first-frame env)))
                   (vals (frame-values (first-frame env))))
                  (scan vars vals))))
@@ -475,7 +475,7 @@
           (list '* *)
           (list '/ /)
           (list 'display display)
-          
+          (list 'list list)
           ; other primitive proc ...
           ))
 
